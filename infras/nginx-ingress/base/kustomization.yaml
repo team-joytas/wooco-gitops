@@ -10,3 +10,7 @@ patches:
     target:
       kind: Service
       name: ingress-nginx-controller
+  - path: nginx-ingress-configmap.yaml
+    target:
+      kind: ConfigMap
+      name: ingress-nginx-controller

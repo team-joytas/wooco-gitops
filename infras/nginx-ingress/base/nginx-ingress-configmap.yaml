@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+data:
+  # PathType Exact 오류 해결
+  # https://github.com/kubernetes/ingress-nginx/issues/11176
+  # https://cert-manager.io/docs/releases/release-notes/release-notes-1.18#option-2-disable-the-strict-validate-path-type-option-in-ingress-nginx
+  strict-validate-path-type: "false"
