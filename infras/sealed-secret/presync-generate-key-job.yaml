@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sealed-secrets-key-bootstrap
+  namespace: kube-system
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded # 성공 시에만 훅 리소스를 정리
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 120 # 2분 넘기면 강제 실패
+  ttlSecondsAfterFinished: 120 # Job 진행후 2분뒤 삭제
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: sealed-secrets-bootstrap
+      volumes:
+        - name: work
+          emptyDir: {}
+      containers:
+        - name: key-and-secret
+          image: alpine:3.20
+          command: ["sh", "-lc"]
+          args:
+            - |
+              set -euo pipefail
+              apk add --no-cache openssl curl jq
+
+              API="https://kubernetes.default.svc"
+              SA="/var/run/secrets/kubernetes.io/serviceaccount"
+              CACERT="$SA/ca.crt"
+              TOKEN="$(cat "$SA/token")"
+
+              VER_JSON="$(curl -fsS --retry 3 --retry-delay 1 \
+                --cacert "$CACERT" -H "Authorization: Bearer $TOKEN" \
+                "$API/version")" || VER_JSON=""
+
+              KVER="$(printf '%s' "$VER_JSON" | jq -r '.gitVersion // empty' || true)"
+              KVER="${KVER%%+*}"
+
+              if [ -z "${KVER:-}" ]; then
+                echo "gitVersion not found; falling back to stable.txt" >&2
+                KVER="$(curl -fsSL --retry 3 --retry-delay 1 https://dl.k8s.io/release/stable.txt)"
+              fi
+
+              ARCH_RAW="$(uname -m)"
+              case "$ARCH_RAW" in
+                x86_64)          ARCH=amd64 ;;
+                aarch64|arm64)   ARCH=arm64 ;;
+                *) echo "unsupported arch: $ARCH_RAW" >&2; exit 1 ;;
+              esac
+
+              echo "Using kubectl ${KVER} (arch=${ARCH})"
+              curl -fsSL --retry 3 --retry-delay 1 \
+                -o /usr/local/bin/kubectl \
+                "https://dl.k8s.io/release/${KVER}/bin/linux/${ARCH}/kubectl"
+              chmod +x /usr/local/bin/kubectl
+
+              if [ ! -f /work/wooco-sealed-secrets-key.pem ] || [ ! -f /work/wooco-sealed-secrets-key.pub ]; then
+                openssl req -x509 -days 3650 -nodes -newkey rsa:4096 \
+                  -keyout /work/wooco-sealed-secrets-key.pem \
+                  -out    /work/wooco-sealed-secrets-key.pub \
+                  -subj "/CN=sealed-secret/O=sealed-secret"
+              fi
+
+              if ! kubectl -n kube-system get secret sealed-secrets-key >/dev/null 2>&1; then
+                kubectl -n kube-system create secret tls sealed-secrets-key \
+                  --cert=/work/wooco-sealed-secrets-key.pub \
+                  --key=/work/wooco-sealed-secrets-key.pem
+                kubectl -n kube-system label secret sealed-secrets-key \
+                  sealedsecrets.bitnami.com/sealed-secrets-key=active --overwrite
+              fi
+
+              echo "sealed-secrets-key bootstrap done."
+          volumeMounts:
+            - name: work
+              mountPath: /work
