@@ -42,3 +42,8 @@ out/
 
 ### Local ###
 .DS_Store
+
+### Custom ###
+.local/
+*.pem
+*.pub
