@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-wooco
+  namespace: gateway
+spec:
+  secretName: wildcard-wooco-tls
+  dnsNames:
+    - wooco.kr
+    - "*.wooco.kr"
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt-dns-prod
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  revisionHistoryLimit: 1
