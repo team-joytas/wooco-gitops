@@ -1,0 +1,166 @@
+global:
+  rbac:
+    create: true
+
+prometheusOperator:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/arch: amd64
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  tls:
+    enabled: false
+  admissionWebhooks:
+    enabled: false
+
+grafana:
+  enabled: true
+  adminPassword: "admin"
+  grafana.ini:
+    server:
+      timezone: "Asia/Seoul"
+  defaultDashboardsEnabled: true
+  nodeSelector:
+    monitoring: "true"
+    kubernetes.io/arch: amd64
+  # Fix multi-attach errors by configuring deployment strategy
+  deploymentStrategy:
+    type: Recreate
+  persistence:
+    enabled: true
+    storageClassName: local-path-retain
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+  service:
+    type: ClusterIP
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # Enable sidecar for dashboard discovery
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+      provider:
+        allowUiUpdates: true
+        disableDelete: false
+        foldersFromFilesStructure: false
+  dashboards:
+    default:
+      prometheus-stats:
+        gnetId: 2
+        revision: 2
+        datasource: Prometheus
+      node-exporter:
+        gnetId: 1860
+        revision: 22
+        datasource: Prometheus
+  additionalDataSources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-operated.monitoring.svc:9090
+  # https://github.com/grafana/helm-charts/issues/752
+  initChownData:
+    enabled: false
+
+prometheus:
+  enabled: true
+  service:
+    type: ClusterIP
+  prometheusSpec:
+    nodeSelector:
+      monitoring: "true"
+      kubernetes.io/arch: amd64
+    retention: 7d
+    # Fix scraping timeouts and intervals to prevent broken pipe errors
+    scrapeInterval: 30s
+    scrapeTimeout: 10s
+    evaluationInterval: 30s
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path-retain
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: 10Gi
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    nodeSelector:
+      monitoring: "true"
+      kubernetes.io/arch: amd64
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path-retain
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: 512Mi
+
+nodeExporter:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/arch: amd64
+  # Fix: Disable problematic nfsd collector and add timeout handling
+  extraArgs:
+    # Explicitly disable nfsd collector that's causing issues
+    - --no-collector.nfsd
+    # Add timeout handling for web requests
+    - --web.timeout=30s
+    # Reduce log verbosity for broken pipe errors
+    - --log.level=warn
+  resources:
+    limits:
+      cpu: 50m
+      memory: 64Mi
+    requests:
+      cpu: 20m
+      memory: 32Mi
+
+kubeStateMetrics:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/arch: amd64
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+kubeEtcd: # k3s에 etcd 직접 노출 없음
+  enabled: false
+kubeProxy: # kube-proxy 대신 Cilium eBPF
+  enabled: false
