@@ -21,10 +21,8 @@ prometheusOperator:
 grafana:
   enabled: true
   adminPassword: "admin"
-  grafana.ini:
-    server:
-      timezone: "Asia/Seoul"
   defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: Asia/Seoul
   nodeSelector:
     monitoring: "true"
     kubernetes.io/arch: amd64
