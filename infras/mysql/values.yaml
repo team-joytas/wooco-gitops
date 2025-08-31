@@ -1,0 +1,65 @@
+tls:
+  useSelfSigned: true
+
+credentials:
+  root:
+    user: root
+    host: "%"
+    password: root # 수동으로 변경
+
+serverInstances: 3
+routerInstances: 2
+
+router:
+  podSpec:
+    nodeSelector:
+      database.mysql-router: "true"
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: mysql.oracle.com/component
+                  operator: In
+                  values: ["router"]
+            topologyKey: "kubernetes.io/hostname"
+
+datadirVolumeClaimTemplate:
+  accessModes: ReadWriteOnce
+  storageClassName: local-path-retain
+  resources:
+    requests:
+      storage: 5Gi
+
+podSpec:
+  nodeSelector:
+    database.mysql: "true"
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: mysql.oracle.com/component
+                operator: In
+                values: ["server"]
+          topologyKey: "kubernetes.io/hostname"
+  containers:
+    - name: mysql
+      resources:
+        requests:
+          cpu: "1000m"
+          memory: "2048Mi"
+        limits:
+          cpu: "2000m"
+          memory: "4096Mi"
+
+mycnf: |
+  [mysqld]
+  innodb_buffer_pool_size=500M
+  innodb_buffer_pool_instances=2
+
+  max_connections=300
+  tmp_table_size=64M
+  max_heap_table_size=64M
+
+  innodb_log_file_size=512M
