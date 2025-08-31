@@ -29,7 +29,7 @@ datadirVolumeClaimTemplate:
   storageClassName: local-path-retain
   resources:
     requests:
-      storage: 5Gi
+      storage: 30Gi
 
 podSpec:
   nodeSelector:
@@ -55,11 +55,12 @@ podSpec:
 
 mycnf: |
   [mysqld]
-  innodb_buffer_pool_size=500M
+  innodb_buffer_pool_size=1024M
   innodb_buffer_pool_instances=2
 
   max_connections=300
+
   tmp_table_size=64M
   max_heap_table_size=64M
 
-  innodb_log_file_size=512M
+  innodb_log_file_size=256M

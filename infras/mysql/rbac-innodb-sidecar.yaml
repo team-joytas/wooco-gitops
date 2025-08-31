@@ -1,0 +1,26 @@
+# sidecar 내에서 403 오류 해결
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wooco-mysql-cluster-sidecar-readonly
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: wooco-mysql-cluster-sidecar-readonly
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wooco-mysql-cluster-sidecar-readonly
+subjects:
+  - kind: ServiceAccount
+    name: wooco-mysql-cluster-sa # {{ .Release.Name }-sa 형식
+    namespace: mysql-cluster

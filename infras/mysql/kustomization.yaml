@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - rbac-innodb-sidecar.yaml
 
 helmCharts:
   - name: mysql-operator
@@ -19,7 +20,7 @@ helmCharts:
   - name: mysql-innodbcluster
     repo: https://mysql.github.io/mysql-operator
     version: 2.1.8
-    releaseName: wooco-mysql
-    namespace: mysql
+    releaseName: wooco-mysql-cluster
+    namespace: mysql-cluster
     includeCRDs: false
     valuesFile: values.yaml
