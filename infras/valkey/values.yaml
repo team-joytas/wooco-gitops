@@ -80,7 +80,7 @@ haproxy:
     serviceMonitor:
       enabled: true
       labels:
-        release: prometheus
+        monitoring/enabled: "true"
   resources:
     requests:
       cpu: 100m
