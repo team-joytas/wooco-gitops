@@ -13,3 +13,6 @@ helmCharts:
     namespace: monitoring
     includeCRDs: true
     valuesFile: values.yaml
+
+transformers:
+  - labels.yaml
