@@ -23,6 +23,15 @@ router:
                   operator: In
                   values: ["router"]
             topologyKey: "kubernetes.io/hostname"
+    containers:
+      - name: router
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Gi"
 
 datadirVolumeClaimTemplate:
   accessModes: ReadWriteOnce
