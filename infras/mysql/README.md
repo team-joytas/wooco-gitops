@@ -19,3 +19,14 @@ wooco-mysql-cluster-0.wooco-mysql-cluster-instances.mysql-cluster.svc.cluster.lo
 - `6446` 포트 RW
 - `6447` 포트 RO
 - `3306` 포트 defaultPort 값 (기본값 mysql-rw)
+
+## sealed
+
+```bash
+CURR_PROJ_DIR=$(git rev-parse --show-toplevel)
+
+kubeseal --format=yaml \
+  --cert=$CURR_PROJ_DIR/.local/wooco-sealed-secrets-key.pub \
+  < $CURR_PROJ_DIR/infras/mysql/secrets.yaml\
+  > $CURR_PROJ_DIR/infras/mysql/sealed-secrets.yaml
+```
