@@ -1,0 +1,84 @@
+image:
+  repository: valkey/valkey
+  tag: 8.1-alpine
+  pullPolicy: IfNotPresent
+
+fullnameOverride: wooco-valkey-sentinel
+
+replicas: 3
+# existingSecret: ~
+nodeSelector:
+  database.valkey-sentinel: "true"
+hardAntiAffinity: true
+
+persistentVolume:
+  enabled: true
+  storageClass: local-path-retain
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+redis:
+  customConfig: |-
+    maxmemory 2560mb
+    maxmemory-policy noeviction
+
+    save 3600 1
+    save 600 1000
+    save 60 10000
+    dbfilename dump.rdb
+    rdbcompression yes
+    rdb-save-incremental-fsync yes
+    stop-writes-on-bgsave-error yes
+
+    appendonly yes
+    appendfsync everysec
+    appenddirname "appendonlydir"
+    aof-use-rdb-preamble yes
+    no-appendfsync-on-rewrite yes
+    auto-aof-rewrite-percentage 40
+    auto-aof-rewrite-min-size 128mb
+  resources:
+    requests:
+      cpu: 600m
+      memory: 1024Mi
+    limits:
+      cpu: 1200m
+      memory: 2560Mi
+
+sentinel:
+  enabled: true
+  quorum: 2
+  config:
+    down-after-milliseconds: 5000
+    failover-timeout: 60000
+    parallel-syncs: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+haproxy:
+  enabled: true
+  replicas: 2
+  readOnly:
+    enabled: true
+    port: 6380
+  service:
+    type: ClusterIP
+  timeout:
+    connect: 3s
+    client: 120s
+    server: 120s
+  checkInterval: 1s
+  checkFall: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 320Mi
