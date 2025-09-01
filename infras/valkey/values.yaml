@@ -75,6 +75,12 @@ haproxy:
     server: 120s
   checkInterval: 1s
   checkFall: 1
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: prometheus
   resources:
     requests:
       cpu: 100m
@@ -82,3 +88,20 @@ haproxy:
     limits:
       cpu: 500m
       memory: 512Mi
+
+exporter:
+  enabled: true
+  image: quay.io/oliver006/redis_exporter
+  tag: v1.76.0
+  pullPolicy: IfNotPresent
+  serviceMonitor:
+    enabled: true
+    labels:
+      monitoring/enabled: "true"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 384Mi
