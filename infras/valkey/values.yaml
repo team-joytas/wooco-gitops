@@ -43,8 +43,8 @@ redis:
       cpu: 600m
       memory: 1024Mi
     limits:
-      cpu: 1200m
-      memory: 2560Mi
+      cpu: 1500m
+      memory: 3600Mi
 
 sentinel:
   enabled: true
@@ -56,10 +56,10 @@ sentinel:
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 128Mi
     limits:
-      cpu: 300m
-      memory: 512Mi
+      cpu: 250m
+      memory: 384Mi
 
 haproxy:
   enabled: true
@@ -80,5 +80,5 @@ haproxy:
       cpu: 100m
       memory: 128Mi
     limits:
-      cpu: 300m
-      memory: 320Mi
+      cpu: 500m
+      memory: 512Mi
