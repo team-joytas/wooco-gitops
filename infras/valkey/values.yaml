@@ -96,8 +96,8 @@ exporter:
   pullPolicy: IfNotPresent
   serviceMonitor:
     enabled: true
-    labels:
-      monitoring/enabled: "true"
+    # labels:
+    #   monitoring/enabled: "true"
   resources:
     requests:
       cpu: 100m

@@ -87,9 +87,9 @@ prometheus:
     scrapeTimeout: 10s
     evaluationInterval: 30s
     serviceMonitorSelectorNilUsesHelmValues: false
-    serviceMonitorSelector:
-      matchLabels:
-        monitoring/enabled: "true"
+    # serviceMonitorSelector:
+    #   matchLabels:
+    #     monitoring/enabled: "true"
     serviceMonitorNamespaceSelector: {} # 전 네임스페이스 허용
     # 특정 네임스페이스만 허용
     # serviceMonitorNamespaceSelector:
