@@ -1,0 +1,116 @@
+deploymentMode: SingleBinary # SimpleScalable 이 기본값임
+
+loki:
+  auth_enabled: false
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 1
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 1
+  analytics:
+    reporting_enabled: false
+  commonConfig:
+    replication_factor: 1
+  compactor:
+    working_directory: /var/loki/compactor/retention
+    delete_request_store: filesystem
+    retention_enabled: true
+  ingester:
+    chunk_encoding: snappy
+  limits_config:
+    retention_period: 7d
+    ingestion_rate_mb: 16
+    ingestion_burst_size_mb: 32
+  server:
+    grpc_server_max_recv_msg_size: 10485760 # 10 MiB
+    grpc_server_max_send_msg_size: 10485760 # 10 MiB
+    log_level: info
+  storage:
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-04-01" # quote
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  structuredConfig:
+    compactor:
+      working_directory: /var/loki/compactor/retention
+      delete_request_store: filesystem
+      retention_enabled: true
+    ruler:
+      enable_api: true
+      enable_alertmanager_v2: true
+      alertmanager_url: http://alertmanager-operated.monitoring.svc.cluster.local:9093
+      storage:
+        type: local
+        local:
+          directory: /rules
+      rule_path: /rules/fake
+
+singleBinary:
+  replicas: 1
+  nodeSelector:
+    monitoring: "true"
+  persistence:
+    enabled: true
+    storageClass: local-path-retain
+    accessModes:
+      - ReadWriteOnce
+    size: 30Gi
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "2048Mi"
+
+sidecar:
+  image:
+    repository: ghcr.io/home-operations/k8s-sidecar
+    tag: 1.30.10@sha256:dd3b1f0c4e6b4512b2deb50c58acf65fd0f0927120a59a95eec854d32a6c9ce3
+  enableUniqueFilenames: true
+  rules:
+    searchNamespace: ALL
+    folder: /rules/fake
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "384Mi"
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+
+gateway:
+  replicas: 0
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+lokiCanary:
+  enabled: false
+test:
+  enabled: false
