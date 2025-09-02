@@ -30,3 +30,20 @@ kubeseal --format=yaml \
   < $CURR_PROJ_DIR/infras/mysql/secrets.yaml\
   > $CURR_PROJ_DIR/infras/mysql/sealed-secrets.yaml
 ```
+
+## MySQL Operator 버그
+
+[mysqld-exporter v0.15.x 버전 이상](https://bugs.mysql.com/bug.php?id=112185)사용시 발생중인 버그
+
+```
+dial unix unix:///var/run/mysqld/mysql.sock: connect: no such file or directory
+```
+
+버그 수정전까지 해결 방법:
+
+```bash
+# config map 직접 수정
+# https://github.com/mysql/mysql-operator/pull/39/files 참고
+- socket=unix:///var/run/mysqld/mysql.sock
++ socket=/var/run/mysqld/mysql.sock
+```
