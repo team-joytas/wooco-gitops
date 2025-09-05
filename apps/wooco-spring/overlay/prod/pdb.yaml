@@ -1,0 +1,7 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: wooco-spring-pdb
+  namespace: wooco-spring
+spec:
+  minAvailable: 2

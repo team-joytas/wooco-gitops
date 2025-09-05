@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wooco-spring
+  namespace: wooco-spring
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  template:
+    spec:
+      nodeSelector:
+        web.spring.wooco/prod: "true"
+      containers:
+        - name: spring
+          image: hongserver/wooco:v1.0.1
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2048Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2560Mi"
+          envFrom:
+            - secretRef:
+                name: wooco-prod-env
