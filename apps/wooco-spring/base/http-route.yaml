@@ -1,0 +1,20 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: wooco-spring-http
+  namespace: wooco-spring
+spec:
+  parentRefs:
+    - name: gateway-external
+      namespace: gateway
+      sectionName: https
+  hostnames:
+    - "bootstrap.wooco.kr"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: wooco-spring-app
+          port: 8080

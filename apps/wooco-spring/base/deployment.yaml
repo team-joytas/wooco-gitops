@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wooco-spring
+  namespace: wooco-spring
+spec:
+  replicas: 0 # overlay 적용 필수
+  revisionHistoryLimit: 0 # overlay 적용 필수
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: wooco-spring-app
+  template:
+    metadata:
+      labels:
+        app: wooco-spring-app
+    spec:
+      nodeSelector: {} # overlay 적용 필수
+      terminationGracePeriodSeconds: 40
+      topologySpreadConstraints:
+        - maxSkew: 1
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: wooco-spring-app
+          topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: spring
+          image: hongserver/wooco:bootstrap # overlay 적용 필수
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9000
+              name: actuator
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: actuator
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: actuator
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 5
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          # lifecycle: # distroless 이미지 미사용시 overlay 로 적용
+          #   preStop:
+          #     exec:
+          #       command: ["/bin/sh", "-c", "sleep 15"]
+          resources: {} # overlay 적용 필수
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      imagePullSecrets:
+        - name: registry-cred

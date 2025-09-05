@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: wooco-spring-pdb
+  namespace: wooco-spring
+spec:
+  selector:
+    matchLabels:
+      app: wooco-spring-app
+  minAvailable: 0 # patches 적용 필수

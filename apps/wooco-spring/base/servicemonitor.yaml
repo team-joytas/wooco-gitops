@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: wooco-spring
+  namespace: wooco-spring
+spec:
+  selector:
+    matchLabels:
+      app: wooco-spring-app
+  namespaceSelector:
+    matchNames:
+      - "wooco-spring"
+  endpoints:
+    - port: actuator
+      path: /actuator/prometheus
+      interval: 15s
+      scrapeTimeout: 5s
+      scheme: http
+      honorLabels: true

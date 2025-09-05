@@ -1,0 +1,17 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: registry-cred
+  namespace: wooco-spring
+spec:
+  encryptedData:
+    .dockerconfigjson: AgBaWHbFfnkglGvQXiwBxCmgzefnARM5Y5U8jL1DZUwVPSvr9ERkGlHj+6RAKVd0ROhHt5O3onXJRvvqZr38O/t+NjVcmsnbrFf+M/kPjeASRwh9cZ3CJ105mktrVWV0rX36rQOyIyutWJRepaKG0Rysr9pPN7IyNOt5/NK33FipKrus4/94NDJroRT5Mhjnq6CfwEiSMDO+9n0p+61qphbjy/niMOqCPO3uYxvExAoiePYAnaNgYJVynb0G9QwmbcWXbuqyedD1+r6RkbSwTAz9MdOoi2AJMyStT+5H3ChpB8bJM8VWnl7QDtiyilrgr6sEzSxWibFXiezmujNIy9aCmGoMTBB2X9k7nRa3wSj4B1BF6UL8sroZ/yHubhUBHs/Om5i9pHC6uNCirE0HsXp03NX/ly8GYeO3fCnHmnSFsQgRtX6Wd0PezKCrL++nOJ2xriya35eZFwSoP+BwujowPjW2xlnLcE5nt/YJJJjpleDTwHyw2CA4iLQ3x1iVjQMqIZQTMozXNBQ40ONzbOdY+9+prk474YrywcmJUD1XXlEeJT7QN9hKHdWxoZBADyyavb76w3t3btSQ22w1H3o5KTKsRvpOkSxbnEHYDffIcN4e06g/eD4fKvWFTZex+81KTp3tfw3zBIglp15hfhEIDF1F2lY7P8J6xJJ9SzK3KD02sGiQZMr7TVyWGWpkFGb4tuxVeGKkSyXBkkcL55hSP0a3Q938+3em85lJpCcdcxnKy4GGSFp1pIxrlztvlxdCTAWZhI40oKYtqUmR1JYOkIQIoCInOp6wNjrkE/axc25gLMs8eGdL9myIOjNU/WCJtvIp5pXMDJUyBYI1GbcWn+tKlYw1wgeNCfOstl8XolhvOO9auA9WuL4aqidp2O6D
+  template:
+    immutable: true
+    metadata:
+      creationTimestamp: null
+      name: registry-cred
+      namespace: wooco-spring
+    type: kubernetes.io/dockerconfigjson
