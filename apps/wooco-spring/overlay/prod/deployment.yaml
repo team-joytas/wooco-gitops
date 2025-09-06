@@ -12,7 +12,7 @@ spec:
         web.spring.wooco/prod: "true"
       containers:
         - name: spring
-          image: hongserver/wooco:v1.0.1
+          image: hongserver/wooco-be:v1.0.1
           resources:
             requests:
               cpu: "1000m"

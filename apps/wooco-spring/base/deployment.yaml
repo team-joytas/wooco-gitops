@@ -38,7 +38,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: spring
-          image: hongserver/wooco:bootstrap # overlay 적용 필수
+          image: hongserver/wooco-be:bootstrap # overlay 적용 필수
           ports:
             - containerPort: 8080
               name: http
