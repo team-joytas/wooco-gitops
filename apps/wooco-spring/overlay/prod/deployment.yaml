@@ -5,11 +5,11 @@ metadata:
   namespace: wooco-spring
 spec:
   replicas: 3
-  revisionHistoryLimit: 3
+  revisionHistoryLimit: 2
   template:
     spec:
       nodeSelector:
-        web.spring.wooco/prod: "true"
+        wooco.kr/node-pool: "web"
       containers:
         - name: spring
           image: hongserver/wooco-be:v1.0.1
