@@ -9,8 +9,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: wooco-spring-app
@@ -19,7 +19,7 @@ spec:
       labels:
         app: wooco-spring-app
     spec:
-      nodeSelector: {} # overlay 적용 필수
+      nodeSelector: {} # overlay 적용 필수 (생략시 requiredAffinity 로 정의 필수)
       terminationGracePeriodSeconds: 40
       topologySpreadConstraints:
         - maxSkew: 1
@@ -53,7 +53,7 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: actuator
-            initialDelaySeconds: 20
+            initialDelaySeconds: 25
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 3
@@ -61,7 +61,7 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: actuator
-            initialDelaySeconds: 30
+            initialDelaySeconds: 40
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 5
