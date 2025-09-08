@@ -12,7 +12,7 @@ spec:
         wooco.kr/node-pool: "web"
       containers:
         - name: spring
-          image: hongserver/wooco-be:v1.0.1
+          image: hongserver/wooco-be:v1.0.2
           resources:
             requests:
               cpu: "1000m"
@@ -23,3 +23,11 @@ spec:
           envFrom:
             - secretRef:
                 name: wooco-prod-env
+          env:
+            - name: JAVA_OPTS
+              value: >-
+                -XX:+UseG1GC
+                -XX:MaxRAMPercentage=75.0
+                -XX:InitialRAMPercentage=40.0
+          args:
+            - "--spring.profiles.active=prod"
