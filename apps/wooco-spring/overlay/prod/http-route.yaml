@@ -5,4 +5,4 @@ metadata:
   namespace: wooco-spring
 spec:
   hostnames:
-    - "api-v2.wooco.kr"
+    - "api.wooco.kr"
