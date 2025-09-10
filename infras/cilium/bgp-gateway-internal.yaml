@@ -1,0 +1,54 @@
+apiVersion: cilium.io/v2
+kind: CiliumBGPAdvertisement
+metadata:
+  name: advertise-gateway-internal
+  labels:
+    advertise: gateway-internal-lb
+spec:
+  advertisements:
+    - advertisementType: Service
+      service:
+        addresses:
+          - LoadBalancerIP
+      selector:
+        matchLabels:
+          gateway.networking.k8s.io/gateway-name: gateway-internal
+      attributes:
+        communities:
+          standard:
+            - "65000:200"
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPPeerConfig
+metadata:
+  name: cilium-peer-gateway-internal
+spec:
+  timers:
+    holdTimeSeconds: 9
+    keepAliveTimeSeconds: 3
+    connectRetryTimeSeconds: 5
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: gateway-internal-lb
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: cilium-bgp-gateway-internal
+spec:
+  nodeSelector:
+    matchLabels:
+      bgp: "true"
+      bgp.advertise: "internal"
+  bgpInstances:
+    - name: "instance-64512"
+      localASN: 64512
+      peers:
+        - name: "upstream-254"
+          peerASN: 65000
+          peerAddress: 172.16.0.254
+          peerConfigRef:
+            name: "cilium-peer-gateway-internal"
